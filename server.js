@@ -85,7 +85,8 @@ class EmployeeManager {
 
                 } else if (answer.options === "Add Employee") {
 
-                    console.log(`in add emp ${answer.employeeFirstName}`);
+                    let addedRows = await addEmployee(answer);
+                    addedRows ? console.log(`Employee ${answer.employeeFirstName} added to the database`) : console.log("***********Employee could not be added to the database***********");
 
                 } else if (answer.options === "Quit") {
 
@@ -106,7 +107,7 @@ class EmployeeManager {
             }
             init();
 
-        }
+        };
 
         async function getEmployees() {
 
@@ -127,7 +128,7 @@ class EmployeeManager {
                     }
                 );
             }
-        }
+        };
 
 
         async function getRoles() {
@@ -146,7 +147,7 @@ class EmployeeManager {
                 );
             }
 
-        }
+        };
 
 
         async function getDepartments() {
@@ -164,7 +165,7 @@ class EmployeeManager {
                 );
             }
 
-        }
+        };
 
         async function displayRoles() {
             try {
@@ -181,7 +182,7 @@ class EmployeeManager {
                 );
             }
 
-        }
+        };
 
         async function displayEmployees() {
             try {
@@ -198,7 +199,7 @@ class EmployeeManager {
                 );
             }
 
-        }
+        };
 
         async function displayDepartments() {
             try {
@@ -215,7 +216,27 @@ class EmployeeManager {
                 );
             }
 
-        }
+        };
+
+
+        async function addEmployee(empDetails) {
+            try {
+                // Query database
+                const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)`;
+                const params = [ empDetails.employeeFirstName, empDetails.employeeLastName, empDetails.roleSelectedForEmployee, empDetails.managerSelectedForEmployee ];
+                let result = await pool.query(sql, params);
+                return result.rowCount;
+
+            } catch (err) {
+
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
+        };
 
 
         // Function call to initialize app
