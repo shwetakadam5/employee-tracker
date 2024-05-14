@@ -45,97 +45,158 @@ class EmployeeManager {
         let welcomeText = ` _                                                          \r\n|_ ._ _  ._  |  _      _   _     |\\\/|  _. ._   _.  _   _  ._\r\n|_ | | | |_) | (_) \\\/ (\/_ (\/_    |  | (_| | | (_| (_| (\/_ | \r\n         |         \/                               _|       `;
         // Created a function to initialize app
         async function init() {
+            try {
+                console.log(welcomeText);
 
-            console.log(welcomeText);
+                const answer = await inquirer
+                    .prompt(
+                        questions.map((question) => {
+                            return {
+                                type: question[ 0 ],
+                                name: question[ 1 ],
+                                message: question[ 2 ],
+                                default: question[ 3 ],
+                                when: question[ 4 ],
+                                choices: question[ 5 ],
+                                validate: question[ 6 ],
+                            }
+                        }));
 
-            const answer = await inquirer
-                .prompt(
-                    questions.map((question) => {
-                        return {
-                            type: question[ 0 ],
-                            name: question[ 1 ],
-                            message: question[ 2 ],
-                            default: question[ 3 ],
-                            when: question[ 4 ],
-                            choices: question[ 5 ],
-                            validate: question[ 6 ],
-                        }
-                    }));
-
-            console.log(answer);
-
-            if (answer.options === "View All Employees") {
-
-                let employeeRecords = await getEmployees();
-                console.table(employeeRecords);
+                console.log(answer);
                 welcomeText = ``;
 
-            } else if (answer.options === "View All Roles") {
+                if (answer.options === "View All Employees") {
 
-                let roleRecords = await getRoles();
-                console.table(roleRecords);
-                welcomeText = ``;
+                    let employeeRecords = await getEmployees();
+                    employeeRecords ? console.table(employeeRecords) : console.log("***********Employees could not be retrieved***********");
 
-            } else if (answer.options === "View All Departments") {
 
-                let departmentRecords = await getDepartments();
-                console.table(departmentRecords);
-                welcomeText = ``;
+                } else if (answer.options === "View All Roles") {
 
-            } else if (answer.options === "Quit") {
+                    let roleRecords = await getRoles();
+                    roleRecords ? console.table(roleRecords) : console.log("***********Roles could not be retrieved***********");
 
-                return;
 
+                } else if (answer.options === "View All Departments") {
+
+                    let departmentRecords = await getDepartments();
+                    departmentRecords ? console.table(departmentRecords) : console.log("***********Departments could not be retrieved***********");
+
+
+                } else if (answer.options === "Add Employee") {
+
+                    console.log(`in add emp ${answer.employeeFirstName}`);
+
+                } else if (answer.options === "Quit") {
+
+                    return;
+
+                }
+
+                // init();
+
+            } catch (err) {
+
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
             }
-
             init();
 
         }
 
         async function getEmployees() {
 
-            // Query database
-            let result = await pool.query(`SELECT e.id, e.first_name, e.last_name, r.title,d.name AS department, r.salary,e.manager_id,CONCAT( e2.first_name,' ', e2.last_name) AS manager FROM employees e
+            try {
+                // Query database
+                let result = await pool.query(`SELECT e.id, e.first_name, e.last_name, r.title,d.name AS department, r.salary,e.manager_id,CONCAT( e2.first_name,' ', e2.last_name) AS manager FROM employees e
             JOIN roles r ON e.role_id = r.id
             JOIN departments d ON r.department = d.id
             LEFT JOIN employees e2 ON e.manager_id = e2.id`);
 
-            return result.rows;
+                return result.rows;
+            } catch (err) {
 
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
         }
 
 
         async function getRoles() {
-
-            // Query database
-            let result = await pool.query(`SELECT r.id, r.title, d.name AS department, r.salary FROM roles r
+            try {
+                // Query database
+                let result = await pool.query(`SELECT r.id, r.title, d.name AS department, r.salary FROM roles r
             JOIN departments d ON r.department = d.id;`);
-            return result.rows;
+                return result.rows;
+            } catch (err) {
+
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
 
         }
 
 
         async function getDepartments() {
+            try {
+                // Query database
+                let result = await pool.query(`SELECT * FROM departments d`);
+                return result.rows;
+            } catch (err) {
 
-            // Query database
-            let result = await pool.query(`SELECT * FROM departments d`);
-            return result.rows;
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
 
         }
 
         async function displayRoles() {
+            try {
+                // Query database
+                let result = await pool.query(`SELECT r.id AS value, r.title AS name FROM roles r`);
+                return result.rows;
+            } catch (err) {
 
-            // Query database
-            let result = await pool.query(`SELECT r.id AS value, r.title AS name FROM roles r`);
-            return result.rows;
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
 
         }
 
         async function displayEmployees() {
+            try {
+                // Query database
+                let result = await pool.query(`SELECT e.id AS value, CONCAT(e.first_name,' ',e.last_name) AS name FROM employees e`);
+                return result.rows;
+            } catch (err) {
 
-            // Query database
-            let result = await pool.query(`SELECT e.id AS value, CONCAT(e.first_name,' ',e.last_name) AS name FROM employees e`);
-            return result.rows;
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
 
         }
 
