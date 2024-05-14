@@ -92,6 +92,11 @@ class EmployeeManager {
                     let addedRows = await addRole(answer);
                     addedRows ? console.log(`Role ${answer.roleName} added to the database`) : console.log("***********Role could not be added to the database***********");
 
+                } else if (answer.options === "Update Employee Role") {
+
+                    let updatedRows = await updateEmployeeRole(answer);
+                    updatedRows ? console.log(`Employee Role updated in the database`) : console.log("***********Employee Role could not be updated to the database***********");
+
                 } else if (answer.options === "Quit") {
 
                     return;
@@ -282,6 +287,24 @@ class EmployeeManager {
             }
         };
 
+        async function updateEmployeeRole(updateDetails) {
+            try {
+                // Query database
+                const sql = `UPDATE employees SET role_id = $1 WHERE id = $2`;
+                const params = [ updateDetails.roleToBeAssignedForEmpUpdate, updateDetails.employeeSelectedForUpdate ];
+                let result = await pool.query(sql, params);
+                return result.rowCount;
+
+            } catch (err) {
+
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
+        };
 
         // Function call to initialize app
         init();
