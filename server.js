@@ -32,8 +32,8 @@ class EmployeeManager {
             [ "list", "options", "What would you like to do?", "", "", [ "View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit" ] ],
             [ "input", "employeeFirstName", "What is the employee's first name?", "", ((answers) => answers.options === "Add Employee"), [] ],
             [ "input", "employeeLastName", "What is the employee's last name?", "", ((answers) => answers.options === "Add Employee"), [] ],
-            [ "list", "roleSelectedForEmployee", "What is the employee's role?", "", ((answers) => answers.options === "Add Employee"), [ "Role1" ] ],
-            [ "list", "managerSelectedForEmployee", "Who is the employee's manager?", "", ((answers) => answers.options === "Add Employee"), [ "employee1" ] ],
+            [ "list", "roleSelectedForEmployee", "What is the employee's role?", "", ((answers) => answers.options === "Add Employee"), async () => await displayRoles() ],
+            [ "list", "managerSelectedForEmployee", "Who is the employee's manager?", "", ((answers) => answers.options === "Add Employee"), async () => await displayEmployees() ],
             [ "list", "employeeSelectedForUpdate", "Which employee's role do you want to update?", "", ((answers) => answers.options === "Update Employee Role"), [ "Employee1" ] ],
             [ "list", "roleToBeAssignedForEmpUpdate", "Which role do you want to assign the selected employee?", "", ((answers) => answers.options === "Update Employee Role"), [ "Role1" ] ],
             [ "input", "roleName", "What is the name of the role?", "", ((answers) => answers.options === "Add Role"), [] ],
@@ -65,12 +65,27 @@ class EmployeeManager {
             console.log(answer);
 
             if (answer.options === "View All Employees") {
+
                 let employeeRecords = await getEmployees();
                 console.table(employeeRecords);
                 welcomeText = ``;
 
+            } else if (answer.options === "View All Roles") {
+
+                let roleRecords = await getRoles();
+                console.table(roleRecords);
+                welcomeText = ``;
+
+            } else if (answer.options === "View All Departments") {
+
+                let departmentRecords = await getDepartments();
+                console.table(departmentRecords);
+                welcomeText = ``;
+
             } else if (answer.options === "Quit") {
+
                 return;
+
             }
 
             init();
@@ -88,6 +103,42 @@ class EmployeeManager {
             return result.rows;
 
         }
+
+
+        async function getRoles() {
+
+            // Query database
+            let result = await pool.query(`SELECT r.id, r.title, d.name AS department, r.salary FROM roles r
+            JOIN departments d ON r.department = d.id;`);
+            return result.rows;
+
+        }
+
+
+        async function getDepartments() {
+
+            // Query database
+            let result = await pool.query(`SELECT * FROM departments d`);
+            return result.rows;
+
+        }
+
+        async function displayRoles() {
+
+            // Query database
+            let result = await pool.query(`SELECT r.id AS value, r.title AS name FROM roles r`);
+            return result.rows;
+
+        }
+
+        async function displayEmployees() {
+
+            // Query database
+            let result = await pool.query(`SELECT e.id AS value, CONCAT(e.first_name,' ',e.last_name) AS name FROM employees e`);
+            return result.rows;
+
+        }
+
 
         // Function call to initialize app
         init();
