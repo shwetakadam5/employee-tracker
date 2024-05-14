@@ -2,17 +2,11 @@ require("dotenv").config();
 
 // Included packages needed for this application
 const inquirer = require("inquirer");
-// Import and require Pool 
 const { Pool } = require('pg');
-
 
 class EmployeeManager {
 
-    constructor() {
-
-
-    }
-
+    constructor() { };
 
     run() {
         // Connect to database
@@ -87,6 +81,16 @@ class EmployeeManager {
 
                     let addedRows = await addEmployee(answer);
                     addedRows ? console.log(`Employee ${answer.employeeFirstName} added to the database`) : console.log("***********Employee could not be added to the database***********");
+
+                } else if (answer.options === "Add Department") {
+
+                    let addedRows = await addDepartment(answer);
+                    addedRows ? console.log(`Department ${answer.departmentName} added to the database`) : console.log("***********Department could not be added to the database***********");
+
+                } else if (answer.options === "Add Role") {
+
+                    let addedRows = await addRole(answer);
+                    addedRows ? console.log(`Role ${answer.roleName} added to the database`) : console.log("***********Role could not be added to the database***********");
 
                 } else if (answer.options === "Quit") {
 
@@ -239,10 +243,50 @@ class EmployeeManager {
         };
 
 
+        async function addDepartment(deptDetails) {
+            try {
+                // Query database
+                const sql = `INSERT INTO departments (name) VALUES ($1)`;
+                const params = [ deptDetails.departmentName ];
+                let result = await pool.query(sql, params);
+                return result.rowCount;
+
+            } catch (err) {
+
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
+        };
+
+
+        async function addRole(roleDetails) {
+            try {
+                // Query database
+                const sql = `INSERT INTO roles (title, salary, department) VALUES ($1,$2,$3)`;
+                const params = [ roleDetails.roleName, roleDetails.roleSalary, roleDetails.departmentSelectedForRole ];
+                let result = await pool.query(sql, params);
+                return result.rowCount;
+
+            } catch (err) {
+
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
+        };
+
+
         // Function call to initialize app
         init();
     }
 }
 
-// Constructor Logoinquirer is exported from the file.
+// Constructor EmployeeManager is exported from the file.
 module.exports = EmployeeManager;
