@@ -24,11 +24,11 @@ class EmployeeManager {
         )
         // Created an array of questions for user input
         const questions = [
-            [ "list", "options", "What would you like to do?", "", "", [ "View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Update Employee Manager", "View Employees By Manager", "Quit" ] ],
+            [ "list", "options", "What would you like to do?", "", "", [ "View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Update Employee Manager", "View Employees By Manager", "View Employees By Department", "Quit" ] ],
             [ "input", "employeeFirstName", "What is the employee's first name?", "", ((answers) => answers.options === "Add Employee"), [] ],
             [ "input", "employeeLastName", "What is the employee's last name?", "", ((answers) => answers.options === "Add Employee"), [] ],
             [ "list", "roleSelectedForEmployee", "What is the employee's role?", "", ((answers) => answers.options === "Add Employee"), async () => await displayRoles() ],
-            [ "list", "managerSelectedForEmployee", "Who is the employee's manager?", "", ((answers) => answers.options === "Add Employee"), async () => await displayEmployees() ],
+            [ "list", "managerSelectedForEmployee", "Who is the employee's manager?", "", ((answers) => answers.options === "Add Employee"), async () => await displayEmployeesForManager() ],
             [ "list", "employeeSelectedForUpdate", "Which employee's role do you want to update?", "", ((answers) => answers.options === "Update Employee Role"), async () => await displayEmployees() ],
             [ "list", "roleToBeAssignedForEmpUpdate", "Which role do you want to assign the selected employee?", "", ((answers) => answers.options === "Update Employee Role"), async () => await displayRoles() ],
             [ "input", "roleName", "What is the name of the role?", "", ((answers) => answers.options === "Add Role"), [] ],
@@ -36,7 +36,9 @@ class EmployeeManager {
             [ "list", "departmentSelectedForRole", "Which department does the role belong to?", "", ((answers) => answers.options === "Add Role"), async () => await displayDepartments() ],
             [ "input", "departmentName", "What is the name of the department?", "", ((answers) => answers.options === "Add Department"), [] ],
             [ "list", "employeeSelectedForMgrUpdate", "Which employee's manager do you want to update?", "", ((answers) => answers.options === "Update Employee Manager"), async () => await displayEmployees() ],
-            [ "list", "mgrToBeAssignedForEmpUpdate", "Which manager do you want to assign the selected employee?", "", ((answers) => answers.options === "Update Employee Manager"), async () => await displayEmployees() ],
+            [ "list", "mgrToBeAssignedForEmpUpdate", "Which manager do you want to assign the selected employee?", "", ((answers) => answers.options === "Update Employee Manager"), async () => await displayEmployeesForManager() ],
+            [ "list", "viewEmployeesOfMgr", "Which manager's employees do you wish to view?", "", ((answers) => answers.options === "View Employees By Manager"), async () => await displayEmployees() ],
+            [ "list", "viewEmployeesOfDept", "Which department employees do you wish to view?", "", ((answers) => answers.options === "View Employees By Department"), async () => await displayDepartments() ],
         ];
 
         let welcomeText = ` _                                                          \r\n|_ ._ _  ._  |  _      _   _     |\\\/|  _. ._   _.  _   _  ._\r\n|_ | | | |_) | (_) \\\/ (\/_ (\/_    |  | (_| | | (_| (_| (\/_ | \r\n         |         \/                               _|       `;
@@ -150,7 +152,7 @@ class EmployeeManager {
 
                 } else if (answer.options === "View Employees By Manager") {
 
-                    let employeeRecords = await getEmployeesByManager();
+                    let employeeRecords = await getEmployeesByManager(answer);
                     let employees = [];
 
                     for (let index = 0; index < employeeRecords.length; index++) {
@@ -158,14 +160,33 @@ class EmployeeManager {
                         employees.push(propertyValues);
                     }
                     var table =
-                        new AsciiTable3('View Employees')
+                        new AsciiTable3('View Employees By Manager')
                             .setHeading('ID', 'First Name', 'Last Name', 'Title', 'Department', 'Salary', 'Manager')
                             .setAlignCenter(3)
                             .addRowMatrix(employees);
 
                     // set compact style
                     table.setStyle('compact');
-                    employees.length ? console.log(table.toString()) : console.log("***********No Employee Records***********");
+                    employees.length ? console.log(table.toString()) : console.log("***********Manager has no employees assigned***********");
+
+                } else if (answer.options === "View Employees By Department") {
+
+                    let employeeRecords = await getEmployeesByDepartment(answer);
+                    let employees = [];
+
+                    for (let index = 0; index < employeeRecords.length; index++) {
+                        const propertyValues = Object.values(employeeRecords[ index ]);
+                        employees.push(propertyValues);
+                    }
+                    var table =
+                        new AsciiTable3('View Employees By Department')
+                            .setHeading('ID', 'First Name', 'Last Name', 'Title', 'Department', 'Salary', 'Manager')
+                            .setAlignCenter(3)
+                            .addRowMatrix(employees);
+
+                    // set compact style
+                    table.setStyle('compact');
+                    employees.length ? console.log(table.toString()) : console.log("***********Department has no employees assigned***********");
 
                 } else if (answer.options === "Quit") {
 
@@ -266,6 +287,27 @@ class EmployeeManager {
                 // Query database
                 let result = await pool.query(`SELECT e.id AS value, CONCAT(e.first_name,' ',e.last_name) AS name FROM employees e`);
                 return result.rows;
+            } catch (err) {
+
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
+
+        };
+
+        async function displayEmployeesForManager() {
+            try {
+                // Query database
+                let employeesAsManagers = [];
+                let result = await pool.query(`SELECT e.id AS value, CONCAT(e.first_name,' ',e.last_name) AS name FROM employees e`);
+                console.log(result.rows);
+                employeesAsManagers = result.rows;
+                employeesAsManagers.unshift({ value: null, name: "None" });
+                return employeesAsManagers;
             } catch (err) {
 
                 console.error(
@@ -392,16 +434,43 @@ class EmployeeManager {
             }
         };
 
-        async function getEmployeesByManager() {
+        async function getEmployeesByManager(managerDetails) {
 
             try {
                 // Query database
-                let result = await pool.query(`SELECT e.id, e.first_name, e.last_name, r.title,d.name AS department, r.salary,CONCAT( e2.first_name,' ', e2.last_name) AS manager FROM employees e
-            JOIN roles r ON e.role_id = r.id
-            JOIN departments d ON r.department = d.id
-            JOIN employees e2 ON e.manager_id = e2.id`);
-
+                const sql = `SELECT e.id, e.first_name, e.last_name, r.title,d.name AS department, r.salary,CONCAT( e2.first_name,' ', e2.last_name) AS manager FROM employees e
+                JOIN roles r ON e.role_id = r.id
+                JOIN departments d ON r.department = d.id
+                LEFT JOIN employees e2 ON e.manager_id = e2.id
+                WHERE e.manager_id = $1`;
+                const params = [ managerDetails.viewEmployeesOfMgr ];
+                let result = await pool.query(sql, params);
                 return result.rows;
+
+            } catch (err) {
+
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
+        };
+
+        async function getEmployeesByDepartment(departmentDetails) {
+
+            try {
+                // Query database
+                const sql = `SELECT e.id, e.first_name, e.last_name, r.title,d.name AS department, r.salary,CONCAT( e2.first_name,' ', e2.last_name) AS manager FROM employees e
+                JOIN roles r ON e.role_id = r.id
+                JOIN departments d ON r.department = d.id
+                LEFT JOIN employees e2 ON e.manager_id = e2.id
+                WHERE d.id = $1`;
+                const params = [ departmentDetails.viewEmployeesOfDept ];
+                let result = await pool.query(sql, params);
+                return result.rows;
+
             } catch (err) {
 
                 console.error(
