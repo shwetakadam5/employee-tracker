@@ -24,7 +24,7 @@ class EmployeeManager {
         )
         // Created an array of questions for user input
         const questions = [
-            [ "list", "options", "What would you like to do?", "", "", [ "View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit" ] ],
+            [ "list", "options", "What would you like to do?", "", "", [ "View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Update Employee Manager", "View Employees By Manager", "Quit" ] ],
             [ "input", "employeeFirstName", "What is the employee's first name?", "", ((answers) => answers.options === "Add Employee"), [] ],
             [ "input", "employeeLastName", "What is the employee's last name?", "", ((answers) => answers.options === "Add Employee"), [] ],
             [ "list", "roleSelectedForEmployee", "What is the employee's role?", "", ((answers) => answers.options === "Add Employee"), async () => await displayRoles() ],
@@ -35,6 +35,8 @@ class EmployeeManager {
             [ "input", "roleSalary", "What is the salary of the role?", "", ((answers) => answers.options === "Add Role"), [] ],
             [ "list", "departmentSelectedForRole", "Which department does the role belong to?", "", ((answers) => answers.options === "Add Role"), async () => await displayDepartments() ],
             [ "input", "departmentName", "What is the name of the department?", "", ((answers) => answers.options === "Add Department"), [] ],
+            [ "list", "employeeSelectedForMgrUpdate", "Which employee's manager do you want to update?", "", ((answers) => answers.options === "Update Employee Manager"), async () => await displayEmployees() ],
+            [ "list", "mgrToBeAssignedForEmpUpdate", "Which manager do you want to assign the selected employee?", "", ((answers) => answers.options === "Update Employee Manager"), async () => await displayEmployees() ],
         ];
 
         let welcomeText = ` _                                                          \r\n|_ ._ _  ._  |  _      _   _     |\\\/|  _. ._   _.  _   _  ._\r\n|_ | | | |_) | (_) \\\/ (\/_ (\/_    |  | (_| | | (_| (_| (\/_ | \r\n         |         \/                               _|       `;
@@ -140,6 +142,30 @@ class EmployeeManager {
 
                     let updatedRows = await updateEmployeeRole(answer);
                     updatedRows ? console.log(`Employee Role updated in the database`) : console.log("***********Employee Role could not be updated to the database***********");
+
+                } else if (answer.options === "Update Employee Manager") {
+
+                    let updatedRows = await updateEmployeeManager(answer);
+                    updatedRows ? console.log(`Employee Manager updated in the database`) : console.log("***********Employee Manager could not be updated to the database***********");
+
+                } else if (answer.options === "View Employees By Manager") {
+
+                    let employeeRecords = await getEmployeesByManager();
+                    let employees = [];
+
+                    for (let index = 0; index < employeeRecords.length; index++) {
+                        const propertyValues = Object.values(employeeRecords[ index ]);
+                        employees.push(propertyValues);
+                    }
+                    var table =
+                        new AsciiTable3('View Employees')
+                            .setHeading('ID', 'First Name', 'Last Name', 'Title', 'Department', 'Salary', 'Manager')
+                            .setAlignCenter(3)
+                            .addRowMatrix(employees);
+
+                    // set compact style
+                    table.setStyle('compact');
+                    employees.length ? console.log(table.toString()) : console.log("***********No Employee Records***********");
 
                 } else if (answer.options === "Quit") {
 
@@ -269,7 +295,6 @@ class EmployeeManager {
 
         };
 
-
         async function addEmployee(empDetails) {
             try {
                 // Query database
@@ -337,6 +362,46 @@ class EmployeeManager {
                 let result = await pool.query(sql, params);
                 return result.rowCount;
 
+            } catch (err) {
+
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
+        };
+
+        async function updateEmployeeManager(updateDetails) {
+            try {
+                // Query database
+                const sql = `UPDATE employees SET manager_id = $1 WHERE id = $2`;
+                const params = [ updateDetails.mgrToBeAssignedForEmpUpdate, updateDetails.employeeSelectedForMgrUpdate ];
+                let result = await pool.query(sql, params);
+                return result.rowCount;
+
+            } catch (err) {
+
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
+        };
+
+        async function getEmployeesByManager() {
+
+            try {
+                // Query database
+                let result = await pool.query(`SELECT e.id, e.first_name, e.last_name, r.title,d.name AS department, r.salary,CONCAT( e2.first_name,' ', e2.last_name) AS manager FROM employees e
+            JOIN roles r ON e.role_id = r.id
+            JOIN departments d ON r.department = d.id
+            JOIN employees e2 ON e.manager_id = e2.id`);
+
+                return result.rows;
             } catch (err) {
 
                 console.error(
