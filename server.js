@@ -24,7 +24,7 @@ class EmployeeManager {
         )
         // Created an array of questions for user input
         const questions = [
-            [ "list", "options", "What would you like to do?", "", "", [ "View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Update Employee Manager", "View Employees By Manager", "View Employees By Department", "Quit" ] ],
+            [ "list", "options", "What would you like to do?", "", "", [ "View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Update Employee Manager", "View Employees By Manager", "View Employees By Department", "View Total Utilized Budget Of A Department", "Quit" ] ],
             [ "input", "employeeFirstName", "What is the employee's first name?", "", ((answers) => answers.options === "Add Employee"), [] ],
             [ "input", "employeeLastName", "What is the employee's last name?", "", ((answers) => answers.options === "Add Employee"), [] ],
             [ "list", "roleSelectedForEmployee", "What is the employee's role?", "", ((answers) => answers.options === "Add Employee"), async () => await displayRoles() ],
@@ -39,6 +39,7 @@ class EmployeeManager {
             [ "list", "mgrToBeAssignedForEmpUpdate", "Which manager do you want to assign the selected employee?", "", ((answers) => answers.options === "Update Employee Manager"), async () => await displayEmployeesForManager() ],
             [ "list", "viewEmployeesOfMgr", "Which manager's employees do you wish to view?", "", ((answers) => answers.options === "View Employees By Manager"), async () => await displayEmployees() ],
             [ "list", "viewEmployeesOfDept", "Which department employees do you wish to view?", "", ((answers) => answers.options === "View Employees By Department"), async () => await displayDepartments() ],
+            [ "list", "viewBudgetOfDept", "Which department's total utilized budget do you wish to view?", "", ((answers) => answers.options === "View Total Utilized Budget Of A Department"), async () => await displayDepartments() ],
         ];
 
         let welcomeText = ` _                                                          \r\n|_ ._ _  ._  |  _      _   _     |\\\/|  _. ._   _.  _   _  ._\r\n|_ | | | |_) | (_) \\\/ (\/_ (\/_    |  | (_| | | (_| (_| (\/_ | \r\n         |         \/                               _|       `;
@@ -187,6 +188,25 @@ class EmployeeManager {
                     // set compact style
                     table.setStyle('compact');
                     employees.length ? console.log(table.toString()) : console.log("***********Department has no employees assigned***********");
+
+                } else if (answer.options === "View Total Utilized Budget Of A Department") {
+
+                    let deptBudgetRecords = await getBudgetByDepartment(answer);
+                    let deptBudgets = [];
+
+                    for (let index = 0; index < deptBudgetRecords.length; index++) {
+                        const propertyValues = Object.values(deptBudgetRecords[ index ]);
+                        deptBudgets.push(propertyValues);
+                    }
+                    var table =
+                        new AsciiTable3('View Total Utilizied Budget Of Department')
+                            .setHeading('Department ID', 'Department Name', 'Number of Employees', 'Total Utilized Budget')
+                            .setAlignCenter(3)
+                            .addRowMatrix(deptBudgets);
+
+                    // set compact style
+                    table.setStyle('compact');
+                    deptBudgets.length ? console.log(table.toString()) : console.log("***********Department has no budget assigned***********");
 
                 } else if (answer.options === "Quit") {
 
@@ -468,6 +488,30 @@ class EmployeeManager {
                 LEFT JOIN employees e2 ON e.manager_id = e2.id
                 WHERE d.id = $1`;
                 const params = [ departmentDetails.viewEmployeesOfDept ];
+                let result = await pool.query(sql, params);
+                return result.rows;
+
+            } catch (err) {
+
+                console.error(
+                    {
+                        Error: `${err.message}`,
+                        Hint: `${err.hint}`
+                    }
+                );
+            }
+        };
+
+        async function getBudgetByDepartment(departmentDetails) {
+
+            try {
+                // Query database
+                const sql = `SELECT d.id, d.name AS Department, COUNT(e.id) AS Total_Num_Of_Employees, SUM(r.salary) AS Total_Utilized_Budget_OfDepartment FROM employees e
+                JOIN roles r ON e.role_id = r.id
+                RIGHT JOIN departments d ON r.department = d.id 
+                WHERE d.id = $1
+                GROUP BY d.id `;
+                const params = [ departmentDetails.viewBudgetOfDept ];
                 let result = await pool.query(sql, params);
                 return result.rows;
 
