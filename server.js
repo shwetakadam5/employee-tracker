@@ -3,6 +3,7 @@ require("dotenv").config();
 // Included packages needed for this application
 const inquirer = require("inquirer");
 const { Pool } = require('pg');
+const { AsciiTable3 } = require('ascii-table3');
 
 class EmployeeManager {
 
@@ -62,19 +63,62 @@ class EmployeeManager {
                 if (answer.options === "View All Employees") {
 
                     let employeeRecords = await getEmployees();
-                    employeeRecords ? console.table(employeeRecords) : console.log("***********Employees could not be retrieved***********");
+                    let employees = [];
+
+                    for (let index = 0; index < employeeRecords.length; index++) {
+                        const propertyValues = Object.values(employeeRecords[ index ]);
+                        employees.push(propertyValues);
+                    }
+                    var table =
+                        new AsciiTable3('View Employees')
+                            .setHeading('ID', 'First Name', 'Last Name', 'Title', 'Department', 'Salary', 'Manager')
+                            .setAlignCenter(3)
+                            .addRowMatrix(employees);
+
+                    // set compact style
+                    table.setStyle('compact');
+                    employees.length ? console.log(table.toString()) : console.log("***********No Employee Records***********");
+
 
 
                 } else if (answer.options === "View All Roles") {
 
                     let roleRecords = await getRoles();
-                    roleRecords ? console.table(roleRecords) : console.log("***********Roles could not be retrieved***********");
+                    let roles = [];
+
+                    for (let index = 0; index < roleRecords.length; index++) {
+                        const propertyValues = Object.values(roleRecords[ index ]);
+                        roles.push(propertyValues);
+                    }
+                    var table =
+                        new AsciiTable3('View Roles')
+                            .setHeading('ID', 'Title', 'Department', 'Salary')
+                            .setAlignCenter(3)
+                            .addRowMatrix(roles);
+
+                    // set compact style
+                    table.setStyle('compact');
+                    roles.length ? console.log(table.toString()) : console.log("***********No Role Records***********");
 
 
                 } else if (answer.options === "View All Departments") {
 
                     let departmentRecords = await getDepartments();
-                    departmentRecords ? console.table(departmentRecords) : console.log("***********Departments could not be retrieved***********");
+                    let departments = [];
+
+                    for (let index = 0; index < departmentRecords.length; index++) {
+                        const propertyValues = Object.values(departmentRecords[ index ]);
+                        departments.push(propertyValues);
+                    }
+                    var table =
+                        new AsciiTable3('View Departments')
+                            .setHeading('ID', 'Name')
+                            .setAlignCenter(3)
+                            .addRowMatrix(departments);
+
+                    // set compact style
+                    table.setStyle('compact');
+                    departments.length ? console.log(table.toString()) : console.log("***********No Department Records***********");
 
 
                 } else if (answer.options === "Add Employee") {
@@ -103,8 +147,6 @@ class EmployeeManager {
 
                 }
 
-                // init();
-
             } catch (err) {
 
                 console.error(
@@ -122,7 +164,7 @@ class EmployeeManager {
 
             try {
                 // Query database
-                let result = await pool.query(`SELECT e.id, e.first_name, e.last_name, r.title,d.name AS department, r.salary,e.manager_id,CONCAT( e2.first_name,' ', e2.last_name) AS manager FROM employees e
+                let result = await pool.query(`SELECT e.id, e.first_name, e.last_name, r.title,d.name AS department, r.salary,CONCAT( e2.first_name,' ', e2.last_name) AS manager FROM employees e
             JOIN roles r ON e.role_id = r.id
             JOIN departments d ON r.department = d.id
             LEFT JOIN employees e2 ON e.manager_id = e2.id`);
