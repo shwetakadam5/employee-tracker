@@ -357,7 +357,7 @@ class EmployeeManager {
                 // Query database
                 let employeesAsManagers = [];
                 let result = await pool.query(`SELECT e.id AS value, CONCAT(e.first_name,' ',e.last_name) AS name FROM employees e`);
-                console.log(result.rows);
+
                 employeesAsManagers = result.rows;
                 employeesAsManagers.unshift({ value: null, name: "None" });
                 return employeesAsManagers;
