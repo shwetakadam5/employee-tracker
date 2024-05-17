@@ -20,7 +20,8 @@ INSERT INTO roles (title, salary, department) VALUES
 ('Scientist', 900000, 6),
 ('Senior Marketing Manager', 100000, 5),
 ('Marketing Trainee', 1000, 5),
-('Marketing Manager', 50000, 5);
+('Marketing Manager', 50000, 5),
+('Business Analyst', 990000, 9);
 
 -- Inserting data into employees table
 INSERT INTO employees (first_name, last_name, role_id) VALUES
@@ -30,7 +31,8 @@ INSERT INTO employees (first_name, last_name, role_id) VALUES
 ('Kevin', 'Tupik', 4), 
 ('Shiv', 'Zutshi', 7),  
 ('Kunal', 'Kadam', 8),
-('Pradeep', 'Sharma', 9);
+('Moriah', 'Cottonora', 9),
+('Kate', 'Baxter', 10);
 
 
 -- Updating the manager_id in the employees table
