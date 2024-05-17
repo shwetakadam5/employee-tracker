@@ -59,40 +59,72 @@ Quick Demo (Important):
 
 ## UsageAndTest Screenshots :
 
-#### 1. ****Employee Tracker : :****
+#### 1. ****Employee Tracker : Start of application:****
 
-![Image Unavailable](./assets/images/) 
+![Image Unavailable](./assets/images/01_emp_tracker_Start.jpg) 
 
-#### 2. ****Employee Tracker : :****
+#### 2. ****Employee Tracker : View Employees:****
 
-![Image Unavailable](./assets/images/) 
+![Image Unavailable](./assets/images/02_emp_tracker_ViewEmployees.jpg) 
 
-#### 3. ****Employee Tracker : :****
-![Image Unavailable](./assets/images/) 
+#### 3. ****Employee Tracker : View Roles:****
+![Image Unavailable](./assets/images/03_emp_tracker_ViewRoles.jpg) 
 
-#### 4. ****Employee Tracker : :****
+#### 4. ****Employee Tracker : View Departments:****
 
-![Image Unavailable](./assets/images/) 
+![Image Unavailable](./assets/images/04_emp_tracker_ViewDepts.jpg) 
 
-#### 5. ****Error 1 : :****
+#### 5. ****Employee Tracker : View Employees by Manager:****
 
-![Image Unavailable](./assets/images/)
+![Image Unavailable](./assets/images/05_emp_tracker_ViewEmpByMgr.jpg)
 
-#### 6. ****Error 2 : :****
+#### 6. ****Employee Tracker : View Employees by Department:****
 
-![Image Unavailable](./assets/images/) 
+![Image Unavailable](./assets/images/06_emp_tracker_ViewEmpByDept.jpg) 
 
-#### 7. ****Error 3 : :****
+#### 7. ****Employee Tracker : View Total Utilizied Budget of the Department:****
 
-![Image Unavailable](./assets/images/) 
+![Image Unavailable](./assets/images/07_emp_tracker_ViewBudgetOfDept.jpg) 
 
-#### 8. ****Error 4 : :****
+#### 8. ****Employee Tracker : Add Employee:****
 
-![Image Unavailable](./assets/images/) 
+![Image Unavailable](./assets/images/08_emp_tracker_AddEmp.jpg) 
 
-#### 9. ****Error 5 : :****
+#### 9. ****Employee Tracker : Add Role:****
 
-![Image Unavailable](./assets/images/) 
+![Image Unavailable](./assets/images/09_emp_tracker_AddRole.jpg) 
+
+#### 10. ****Employee Tracker : Add Department:****
+
+![Image Unavailable](./assets/images/010_emp_tracker_AddDept.jpg) 
+
+#### 11. ****Employee Tracker : Update Employee's Role:****
+
+![Image Unavailable](./assets/images/011_emp_tracker_UpdateRole.jpg) 
+
+#### 12. ****Employee Tracker : Update Employee's Manager:****
+
+![Image Unavailable](./assets/images/012_emp_tracker_UpdateEmpManager.jpg) 
+
+#### 13. ****Employee Tracker : Delete Department****
+
+![Image Unavailable](./assets/images/013_emp_tracker_DeleteDept.jpg) 
+
+#### 14. ****Employee Tracker : Delete Role:****
+
+![Image Unavailable](./assets/images/014_emp_tracker_DeleteRole.jpg) 
+
+#### 15. ****Employee Tracker : Delete Employee:****
+
+![Image Unavailable](./assets/images/015_emp_tracker_DeleteEmployee.jpg) 
+
+#### 16. ****Employee Tracker : Quit Application:****
+
+![Image Unavailable](./assets/images/016_emp_tracker_QuitApplication.jpg) 
+
+#### 16. ****Employee Tracker : Example of error message logged using console.error and Error message displayed to user:****
+
+![Image Unavailable](./assets/images/017_emp_tracker_ErrorMessageFormat.jpg) 
 
 ## Acceptance-Criteria
 
