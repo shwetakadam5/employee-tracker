@@ -45,9 +45,6 @@ SO THAT I can organize and plan my business
 
 ## Usage
 
-Open the terminal and navigate to the project path **\logo-generator , run the command npm start and answer the questions prompts.
-On completion all the questions, a logo.svg file will be generated from the inputs provided by the user.
-
 **Link for the repository :** 
 
 https://github.com/shwetakadam5/employee-tracker
